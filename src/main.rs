@@ -59,14 +59,12 @@ impl Service for Echo {
     type Future = BoxFuture<Self::Response, Self::Error>;
 
     fn call(&self, req: Self::Request) -> Self::Future {
-        let r: String = req.chars().rev().collect();
-        let r_val: String = r.to_string() + &req;
-        future::ok(r_val).boxed()
+        future::ok(req).boxed()
     }
 }
 
 fn main() {
-    let addr = "0.0.0.0:12345".parse().unwrap();
+    let addr = "0.0.0.0:4000".parse().unwrap();
     let server = TcpServer::new(LineProto, addr);
     server.serve(|| Ok(Echo));
 }
