@@ -8,8 +8,8 @@ use std::str;
 use tokio_core::io::{Codec, EasyBuf, Io, Framed};
 use tokio_proto::pipeline::ServerProto;
 use tokio_proto::TcpServer;
-use tokio_service::Service;
-use futures::{future, Future, BoxFuture};
+
+mod storage;
 
 pub struct LineCodec;
 
@@ -50,21 +50,8 @@ impl<T:Io + 'static> ServerProto<T> for LineProto {
     }
 }
 
-pub struct Echo;
-
-impl Service for Echo {
-    type Request = String;
-    type Response = String;
-    type Error = io::Error;
-    type Future = BoxFuture<Self::Response, Self::Error>;
-
-    fn call(&self, req: Self::Request) -> Self::Future {
-        future::ok(req).boxed()
-    }
-}
-
 fn main() {
     let addr = "0.0.0.0:4000".parse().unwrap();
     let server = TcpServer::new(LineProto, addr);
-    server.serve(|| Ok(Echo));
+    server.serve(|| Ok(storage::Session::new()));
 }
